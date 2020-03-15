@@ -14,6 +14,7 @@ import (
 type Cron struct {
 	cron		*cron.Cron
 	logger 		*logrus.Logger
+	config		*cronConfig
 }
 
 
@@ -25,10 +26,12 @@ func NewCron(pathToConfig string, function func()) *Cron {
 	if err != nil {
 		log.Fatalf("err during adding function to cron: %s", err)
 	}
-	return &Cron{
-		c,
-		NewLogger(),
+	daemon := &Cron{
+		cron: c,
+		config: config,
 	}
+	daemon.setupLogger()
+	return daemon
 }
 
 
@@ -59,13 +62,17 @@ func (c *Cron) cronShutdownChecker(cronShutdownCatcher chan os.Signal) {
 
 
 // Creates and returns default logger with level INFO
-func NewLogger() (logger *logrus.Logger) {
+func (c *Cron) setupLogger() (logger *logrus.Logger) {
 	logger = logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{
 		ForceColors:               true,
 		FullTimestamp:             true,
 		TimestampFormat:           "2006-01-02 15:04:05",
 	})
-	logger.SetLevel(logrus.InfoLevel)
+	logLevel, err := logrus.ParseLevel(c.config.LogLevel)
+	if err != nil {
+		log.Fatalf("incorrect logger level: %s", err)
+	}
+	logger.SetLevel(logLevel)
 	return
 }

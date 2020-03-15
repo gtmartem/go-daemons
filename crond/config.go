@@ -1,6 +1,5 @@
 package crond
 
-
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -10,6 +9,7 @@ import (
 
 type cronConfig struct {
 	Cron		string	`yaml:"cron,omitempty"`
+	LogLevel	string	`yaml:"log_level,omitempty"`
 }
 
 
@@ -17,6 +17,7 @@ type cronConfig struct {
 func newConfig() *cronConfig {
 	return &cronConfig{
 		Cron: "* * * * *", // starts every minute
+		LogLevel: "info", // default log level
 	}
 }
 
